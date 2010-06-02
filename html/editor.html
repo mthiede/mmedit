@@ -1,0 +1,31 @@
+<html>
+	<head>
+		<link rel="stylesheet" href="/concrete/example/themes/white.css" type="text/css" />		
+		<link rel="stylesheet" href="/concrete/concrete/ui/style.css" type="text/css" />		
+		<link rel="stylesheet" href="/html/style.css" type="text/css" />
+		<script src="/concrete/redist/prototype.js" type="text/javascript"></script>
+		<script src="/concrete/redist/scriptaculous/scriptaculous.js" type="text/javascript"></script>
+		<script src="/concrete/concrete/concrete.js" type="text/javascript"></script>
+		<script src="/concrete/concrete/ui/concrete_ui.js" type="text/javascript"></script>
+		<script src="metamodel.js" type="text/javascript"></script>
+		<script src="index_metamodel.js" type="text/javascript"></script>
+</head>
+	<body>
+
+		<script type="text/javascript" language="javascript" charset="utf-8">
+			// <![CDATA[
+
+        Concrete.UI.Workbench.setup(Metamodel, IndexMetamodel, {
+
+          moduleEditorOptions: {
+            rootClasses: ["EPackage"]
+          }
+        });
+
+			// ]]>
+		</script>
+	</body>
+</html>
+
+
+
