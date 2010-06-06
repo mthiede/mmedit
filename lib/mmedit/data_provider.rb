@@ -1,4 +1,6 @@
 require 'rgen/environment'
+require 'rgen/instantiator/ecore_xml_instantiator'
+require 'rgen/serializer/xmi20_serializer'
 require 'mmgen/metamodel_generator'
 require 'concrete/file_cache_map'
 require 'concrete/util/string_writer'
@@ -67,14 +69,23 @@ class DataProvider
     env = RGen::Environment.new
 
     inst = ConcreteSupport::JsonInstantiator.new(env, @mm, :separator => "/", :leadingSeparator => true)
-    inst.instantiate(data)
+    unresolvedReferences = inst.instantiate(data)
+
+    resolveReferencesToBuiltins(unresolvedReferences)
 
     outfile = @workingSet.getFile(fileIdent)
     return unless outfile
 
     tempfile = outfile+".mmedit.tmp"
     root = env.find(:class => RGen::ECore::EPackage).find{|p| p.eSuperPackage.nil?}
-    generateMetamodel(root, tempfile)
+    if fileIdent =~ /\.ecore$/
+      File.open(tempfile,"w") do |f|
+        ser = RGen::Serializer::XMI20Serializer.new(f)
+        ser.serialize(root)
+      end
+    else
+      generateMetamodel(root, tempfile)
+    end
     FileUtils.mv(tempfile, outfile)
 
     @jsonModelCache.storeData(outfile, data)
@@ -110,9 +121,13 @@ class DataProvider
   end
 
   def generateArtefacts(file)
-    mm = loadMetamodel(file)
-    generateJsonModel(file, mm.ecore)
-    generateJsonIndex(file, mm.ecore)
+    if file =~ /\.ecore$/
+      rootp = loadECoreMetamodel(file)
+    else
+      rootp = loadRGenMetamodel(file)
+    end
+    generateJsonModel(file, rootp)
+    generateJsonIndex(file, rootp)
   end
 
   def generateJsonModel(file, root)
@@ -132,12 +147,20 @@ class DataProvider
     @jsonIndexCache.storeData(file, writer.string)
   end
 
-  def loadMetamodel(file)
+  def loadRGenMetamodel(file)
     self.class.remove_const(:LoadContainer) if self.class.const_defined?(:LoadContainer)
     eval("module LoadContainer; end")  
     LoadContainer.module_eval(File.read(file))
     mmname = LoadContainer.constants.find{|c| LoadContainer.const_get(c).respond_to?(:ecore)}
-    LoadContainer.const_get(mmname)
+    LoadContainer.const_get(mmname).ecore
+  end
+
+  def loadECoreMetamodel(file)
+    env = RGen::Environment.new
+    File.open(file) do |f|
+      ECoreXMLInstantiator.new(env).instantiate(f.read)
+    end
+    env.find(:class => RGen::ECore::EPackage).find{|p| p.eSuperPackage.nil?}
   end
 
   def builtInJsonModel
@@ -166,6 +189,30 @@ class DataProvider
       RGen::ECore::ERubyClass,
       RGen::ECore::EJavaClass
     ]
+  end
+
+  def resolveReferencesToBuiltins(unresolvedReferences)
+    unresolvedReferences.each do |ur|
+      target = case ur.proxy.targetIdentifier
+        when "/EString"; RGen::ECore::EString
+        when "/EInt"; RGen::ECore::EInt
+        when "/EFloat"; RGen::ECore::EFloat
+        when "/EBoolean"; RGen::ECore::EBoolean
+        when "/EJavaObject"; RGen::ECore::EJavaObject
+        when "/EJavaClass"; RGen::ECore::EJavaClass
+        when "/ERubyObject"; RGen::ECore::ERubyObject
+        when "/ERubyClass"; RGen::ECore::ERubyClass
+        else
+          nil
+      end
+      if ur.element.hasManyMethods(ur.featureName)
+        ur.element.removeGeneric(ur.featureName, ur.proxy)
+        ur.element.addGeneric(ur.featureName, target)
+      else
+        # this will replace the proxy
+        ur.element.setGeneric(ur.featureName, target)
+      end
+    end
   end
 
 end
