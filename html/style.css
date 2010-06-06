@@ -17,3 +17,16 @@
   padding: 2px;
 }
 
+.ctc_EReference .icon {
+  display: inline-block;
+  width: 20px;
+  height: 16px;
+  background-image: url("images/ref_icon.png")
+}
+
+.ctc_EAttribute .icon {
+  display: inline-block;
+  width: 20px;
+  height: 16px;
+  background-image: url("images/attr_icon.png")
+}
