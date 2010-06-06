@@ -9,6 +9,9 @@ require 'concrete_support/json_instantiator'
 module MMEdit
 
 class DataProvider
+  include MMGen::MetamodelGenerator
+
+  BuiltInIdent = "_builtin"
 
   def initialize(workingSet, mm, indexBuilder, logger)
     @workingSet = workingSet
@@ -26,7 +29,7 @@ class DataProvider
 
     env = RGen::Environment.new
 
-    trans = ConcreteSupport::ECoreToConcrete.new(nil, env)
+    trans = ConcreteSupport::ECoreToConcrete.new(nil, env, :featureFilter => proc{|f| !f.derived && f.name != "eSubTypes"})
     trans.trans(@mm.ecore.eAllClasses)
 
     writer = Concrete::Util::StringWriter.new
@@ -51,10 +54,16 @@ class DataProvider
   end
 
   def getJsonModel(fileIdent)
-    cachedData(fileIdent, @jsonModelCache)
+    if (fileIdent == BuiltInIdent)
+      builtInJsonModel
+    else
+      cachedData(fileIdent, @jsonModelCache)
+    end
   end
 
   def setJsonModel(fileIdent, data)
+    return if (fileIdent == BuiltInIdent)
+
     env = RGen::Environment.new
 
     inst = ConcreteSupport::JsonInstantiator.new(env, @mm, :separator => "/", :leadingSeparator => true)
@@ -73,11 +82,16 @@ class DataProvider
   end
 
   def getJsonIndex(fileIdent)
-    cachedData(fileIdent, @jsonIndexCache)
+    if (fileIdent == BuiltInIdent)
+      builtInJsonIndex
+    else
+      cachedData(fileIdent, @jsonIndexCache)
+    end
   end
 
   def getAllJsonIndex
-    "[" + @workingSet.fileIdentifiers.collect do |ident|
+  puts "load index"
+    "[" + (@workingSet.fileIdentifiers + [BuiltInIdent]).collect do |ident|
       '{ "_class": "Module", "name": "'+ident+'", "elements":'+"\n"+getJsonIndex(ident)+"}"
     end.join(",\n") + "]"
   end
@@ -114,16 +128,44 @@ class DataProvider
     index = @indexBuilder.buildIndex(root)
     writer = Concrete::Util::StringWriter.new
     ser = ConcreteSupport::JsonSerializer.new(writer)
-    # do not output file node to avoid file name dependency
-    ser.serialize(index.elements)
+    ser.serialize(index)
     @jsonIndexCache.storeData(file, writer.string)
   end
 
   def loadMetamodel(file)
-    self.class.const_remove("LoadContainer")
+    self.class.remove_const(:LoadContainer) if self.class.const_defined?(:LoadContainer)
     eval("module LoadContainer; end")  
     LoadContainer.module_eval(File.read(file))
-    LoadContainer.constants.find{|c| LoadContainer.const_get(c).respond_to?(:ecore)}
+    mmname = LoadContainer.constants.find{|c| LoadContainer.const_get(c).respond_to?(:ecore)}
+    LoadContainer.const_get(mmname)
+  end
+
+  def builtInJsonModel
+    writer = Concrete::Util::StringWriter.new
+    ser = ConcreteSupport::JsonSerializer.new(writer)
+    ser.serialize(builtInModel)
+    writer.string
+  end
+
+  def builtInJsonIndex
+    index = builtInModel.collect{|e| @indexBuilder.buildIndex(e)}
+    writer = Concrete::Util::StringWriter.new
+    ser = ConcreteSupport::JsonSerializer.new(writer)
+    ser.serialize(index)
+    writer.string
+  end
+
+  def builtInModel
+    [
+      RGen::ECore::EString,
+      RGen::ECore::EInt,
+      RGen::ECore::EBoolean,
+      RGen::ECore::EFloat,
+      RGen::ECore::ERubyObject,
+      RGen::ECore::EJavaObject,
+      RGen::ECore::ERubyClass,
+      RGen::ECore::EJavaClass
+    ]
   end
 
 end
