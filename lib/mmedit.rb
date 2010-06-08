@@ -1,4 +1,10 @@
 require 'version'
+require 'mmedit/data_provider'
+require 'concrete/working_set'
+require 'concrete/index_builder'
+require 'concrete/util/logger'
+require 'concrete/server'
+require 'concrete/concrete_syntax_provider'
 
 module MMEdit
 
@@ -16,12 +22,6 @@ module MMEdit
   end
 
   def self.edit
-    require 'mmedit/data_provider'
-    require 'concrete/working_set'
-    require 'concrete/index_builder'
-    require 'concrete/util/logger'
-    require 'concrete/server'
-
     logger = Concrete::Util::Logger.new
 
     workingSet = Concrete::WorkingSet.new(".")
@@ -33,7 +33,8 @@ module MMEdit
     indexBuilder.indexMetamodel
 
     dataProvider = MMEdit::DataProvider.new(workingSet, mm, indexBuilder, logger)
-    Concrete::Server.new(workingSet, dataProvider, File.dirname(__FILE__)+"/../html").start
+    syntaxProvider = Concrete::ConcreteSyntaxProvider.new([File.dirname(__FILE__)+"/../syntax"], logger)
+    Concrete::Server.new(workingSet, dataProvider, syntaxProvider, File.dirname(__FILE__)+"/../html").start
   end
 
 end

@@ -1,0 +1,33 @@
+.ctn_eStructuralFeatures table {
+	font-family: "courier new";
+	font-size: 12;
+  border-collapse: collapse;
+  border-spacing: 0px;
+  margin: 2px;
+  margin-left: 10px;
+}
+
+.ctn_eStructuralFeatures thead {
+  color: black;
+  background-color: #bbb;
+}
+
+.ctn_eStructuralFeatures table td {
+  border: 1px solid #777;
+  padding: 2px;
+}
+
+.ctc_EReference .icon {
+  display: inline-block;
+  width: 20px;
+  height: 16px;
+  background-image: url("images/ref_icon.png")
+}
+
+.ctc_EAttribute .icon {
+  display: inline-block;
+  width: 20px;
+  height: 16px;
+  background-image: url("images/attr_icon.png")
+}
+
