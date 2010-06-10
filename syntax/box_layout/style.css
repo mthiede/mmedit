@@ -1,0 +1,72 @@
+body {
+  font-family: verdana;
+}
+
+.ct_inline_editor input {
+	font-family: verdana;
+}
+
+.ct_module_editor .ctc_EPackage {
+	padding: 2px 0 2px 0;
+  border: 1px solid grey;
+  margin: 10px;
+  background-color: rgba(255, 255, 0, 0.3);
+}
+
+.ct_module_editor .ctc_EPackage .ct_fold_button {
+  margin: 2px 4px 2px 4px;
+}
+
+.ct_module_editor .ctc_EClass {
+	padding: 2px 0 2px 0;
+  border: 1px solid grey;
+  display: inline-block;
+  margin: 10px;
+  background-color: #faa;
+}
+
+.ct_module_editor .ct_element.ct_selected, .ct_module_editor .ct_selected .ct_element {
+  background-color: #ccf; 
+}
+
+.ct_module_editor .ct_ref_target, .ct_module_editor .ct_ref_target .ct_element {
+  background-color: #eef; 
+}
+
+.ct_module_editor .ctc_EClass .ct_fold_button {
+  margin: 2px 4px 2px 4px;
+}
+
+.ct_module_editor .ctn_eSuperTypes .ct_value {
+  display: block;
+}
+
+.ct_module_editor .ctc_EReference > .icon {
+  display: inline-block;
+  width: 20px;
+  height: 9px;
+  background-image: url("images/ref_icon.png");
+}
+
+.ct_module_editor .ctc_EAttribute > .icon {
+  display: inline-block;
+  width: 20px;
+  height: 9px;
+  background-image: url("images/attr_icon.png");
+}
+
+.ct_module_editor .ctn_containment > .icon {
+  display: inline-block;
+  width: 16px;
+  height: 9px;
+  background-image: url("images/composite_icon.png");
+  margin-right: 3px;
+}
+
+.ct_module_editor .ctn_eOpposite > .icon {
+  display: inline-block;
+  width: 16px;
+  height: 9px;
+  background-image: url("images/opposite_icon.png");
+  margin-right: 3px;
+}
