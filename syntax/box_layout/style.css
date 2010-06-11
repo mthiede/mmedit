@@ -1,3 +1,5 @@
+/* overwrite general styles */
+
 body {
   font-family: verdana;
 }
@@ -6,7 +8,19 @@ body {
 	font-family: verdana;
 }
 
-.ct_module_editor .ctc_EPackage {
+/* overwrite predefined styles for module editor */
+
+.ct_module_editor .ct_value {
+	margin: 0;
+}
+
+.ct_module_editor .ct_empty {
+	background-color: #aaa;	
+}
+
+/* EPackage */
+
+.ct_module_editor .ct_element.ctc_EPackage {
 	padding: 2px 0 2px 0;
   border: 1px solid grey;
   margin: 10px;
@@ -17,20 +31,14 @@ body {
   margin: 2px 4px 2px 4px;
 }
 
-.ct_module_editor .ctc_EClass {
+/* EClass */
+
+.ct_module_editor .ct_element.ctc_EClass {
 	padding: 2px 0 2px 0;
   border: 1px solid grey;
   display: inline-block;
   margin: 10px;
   background-color: #faa;
-}
-
-.ct_module_editor .ct_element.ct_selected, .ct_module_editor .ct_selected .ct_element {
-  background-color: #ccf; 
-}
-
-.ct_module_editor .ct_ref_target, .ct_module_editor .ct_ref_target .ct_element {
-  background-color: #eef; 
 }
 
 .ct_module_editor .ctc_EClass .ct_fold_button {
@@ -41,18 +49,13 @@ body {
   display: block;
 }
 
+/* EReference */
+
 .ct_module_editor .ctc_EReference > .icon {
   display: inline-block;
   width: 20px;
   height: 9px;
   background-image: url("images/ref_icon.png");
-}
-
-.ct_module_editor .ctc_EAttribute > .icon {
-  display: inline-block;
-  width: 20px;
-  height: 9px;
-  background-image: url("images/attr_icon.png");
 }
 
 .ct_module_editor .ctn_containment > .icon {
@@ -69,4 +72,31 @@ body {
   height: 9px;
   background-image: url("images/opposite_icon.png");
   margin-right: 3px;
+}
+
+/* EAttribute */
+
+.ct_module_editor .ctc_EAttribute > .icon {
+  display: inline-block;
+  width: 20px;
+  height: 9px;
+  background-image: url("images/attr_icon.png");
+}
+
+/* general styles which must overwrite styles defined about */
+
+.ct_module_editor .ct_selected {
+  background-color: #ccf; 
+}
+
+.ct_module_editor .ct_element.ct_selected {
+  background-color: #ccf; 
+}
+
+.ct_module_editor .ct_ref_target {
+  background-color: #ddf; 
+}
+
+.ct_module_editor .ct_element.ct_ref_target {
+  background-color: #ddf; 
 }
