@@ -9,16 +9,16 @@ GemSpec = Gem::Specification.new do |s|
   s.version = MMEDIT_VERSION
   s.date = Time.now.strftime("%Y-%m-%d")
   s.summary = %q{A metamodel editor based on Concrete}
+  s.authors = ["Martin Thiede"]
   # we want no rdoc or ri
   s.rdoc_options = ["-x", ".*"]
   s.required_ruby_version = Gem::Version::Requirement.new(">= 1.8.6")
-  s.add_dependency('rgen', '>= 0.5.1')
-  s.add_dependency('andand', '>= 1.3.1')
+  s.add_dependency('rgen', '>= 0.5.2')
   s.add_dependency('concrete', '>= 0.2.0')
   gemfiles = Rake::FileList.new
-  gemfiles.include("lib/**/*")
   gemfiles.include("html/**/*")
-  gemfiles.include("test/**/*")
+  gemfiles.include("lib/**/*")
+  gemfiles.include("syntax/**/*")
   gemfiles.include("mmedit.rb", "rakefile", "CHANGELOG")
   s.files = gemfiles
   s.require_paths << "lib"

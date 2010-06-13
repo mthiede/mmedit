@@ -28,7 +28,7 @@ module MMEdit
     workingSet = Concrete::WorkingSet.new(".")
     ARGV.each{|a| workingSet.addFile(a)}
 
-    logger.info "starting..."
+    logger.info "Point your Firefox or Chrome to http://localhost:1234 ..."
     mm = RGen::ECore
     indexBuilder = Concrete::IndexBuilder.new(mm, :ignoreReferences => proc {|r| false })
     indexBuilder.indexMetamodel
