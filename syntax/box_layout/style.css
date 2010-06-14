@@ -68,7 +68,7 @@ body {
   display: inline-block;
   width: 20px;
   height: 9px;
-  background-image: url("images/ref_icon.png");
+  background-image: url("images/ref_icon_thin.png");
 }
 
 .ct_module_editor .ctn_containment > .icon {
@@ -93,7 +93,7 @@ body {
   display: inline-block;
   width: 20px;
   height: 9px;
-  background-image: url("images/attr_icon.png");
+  background-image: url("images/attr_icon_thin.png");
 }
 
 /* general styles which must overwrite styles defined about */
