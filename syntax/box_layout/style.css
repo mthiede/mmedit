@@ -27,6 +27,12 @@ body {
   background-color: rgba(255, 255, 0, 0.3);
 }
 
+.ct_module_editor .ctc_EPackage > .ctn_name {
+  font-size: 150%; 
+  border-bottom: 1px solid grey;
+  padding: 3px;
+}
+
 .ct_module_editor .ctc_EPackage .ct_fold_button {
   margin: 2px 4px 2px 4px;
 }
@@ -39,6 +45,13 @@ body {
   display: inline-block;
   margin: 10px;
   background-color: #faa;
+}
+
+.ct_module_editor .ctc_EClass > .ctn_name {
+  font-size: 150%; 
+  border-bottom: 1px solid grey;
+  text-align: center;
+  padding: 3px;
 }
 
 .ct_module_editor .ctc_EClass .ct_fold_button {
@@ -99,4 +112,8 @@ body {
 
 .ct_module_editor .ct_element.ct_ref_target {
   background-color: #ddf; 
+}
+
+.ct_module_editor .ct_element.ct_error {
+	border-left: 5px solid #F77;	
 }
