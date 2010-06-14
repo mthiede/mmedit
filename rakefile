@@ -16,10 +16,11 @@ GemSpec = Gem::Specification.new do |s|
   s.add_dependency('rgen', '>= 0.5.2')
   s.add_dependency('concrete', '>= 0.2.0')
   gemfiles = Rake::FileList.new
+  gemfiles.include("example/**/*")
   gemfiles.include("html/**/*")
   gemfiles.include("lib/**/*")
   gemfiles.include("syntax/**/*")
-  gemfiles.include("mmedit.rb", "rakefile", "CHANGELOG")
+  gemfiles.include("mmedit.rb", "rakefile", "CHANGELOG", "README.rdoc")
   s.files = gemfiles
   s.require_paths << "lib"
   s.executables = ["mmedit"]
