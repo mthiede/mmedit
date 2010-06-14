@@ -35,7 +35,7 @@ http://ruby-lang.org
 
 == Documentation
 
-MMEdit is a Concrete based editor. Refer to the Concrete User's Guide for information about how to use a Concrete based editor.
+Start MMEdit and press the "Browse Help" toolbar button to show the Concrete User's Guide.
 
 
 == Examples
@@ -53,6 +53,8 @@ or
 > mmedit example/statemachine_metamodel.rb
 
 You can also pass both metamodel files to mmedit at the same time. However this will lead to errors due to duplicate identifiers since both files contain the same metamodels.
+
+Once MMEdit has started, point your browser to http://localhost:1234 to start editing. For best results use an up-to-date version of Chrome or Firefox.
 
 
 == License
