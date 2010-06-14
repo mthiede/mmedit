@@ -4,9 +4,9 @@ require 'rgen/serializer/xmi20_serializer'
 require 'mmgen/metamodel_generator'
 require 'concrete/file_cache_map'
 require 'concrete/util/string_writer'
-require 'concrete_support/ecore_to_concrete'
-require 'concrete_support/json_serializer'
-require 'concrete_support/json_instantiator'
+require 'concrete/metamodel/ecore_to_concrete'
+require 'rgen/serializer/json_serializer'
+require 'rgen/instantiator/json_instantiator'
 
 module MMEdit
 
@@ -31,12 +31,12 @@ class DataProvider
 
     env = RGen::Environment.new
 
-    trans = ConcreteSupport::ECoreToConcrete.new(nil, env, :featureFilter => proc{|f| !f.derived && f.name != "eSubTypes"})
+    trans = Concrete::Metamodel::ECoreToConcrete.new(nil, env, :featureFilter => proc{|f| !f.derived && f.name != "eSubTypes"})
     trans.trans(@mm.ecore.eAllClasses)
 
     writer = Concrete::Util::StringWriter.new
-    ser = ConcreteSupport::JsonSerializer.new(writer, :leadingSeparator => false)
-    ser.serialize(env.find(:class => ConcreteSupport::ConcreteMMM::Classifier))
+    ser = RGen::Serializer::JsonSerializer.new(writer, :leadingSeparator => false)
+    ser.serialize(env.find(:class => Concrete::Metamodel::ConcreteMMM::Classifier))
 
     @metamodelAsJson = "var Metamodel = "+writer.string+";"
   end
@@ -45,12 +45,12 @@ class DataProvider
     return @indexMetamodelAsJson if @indexMetamodelAsJson
 
     env = RGen::Environment.new
-    trans = ConcreteSupport::ECoreToConcrete.new(nil, env)
+    trans = Concrete::Metamodel::ECoreToConcrete.new(nil, env)
     trans.trans(@indexBuilder.indexMetamodel.ecore.eAllClasses)
 
     writer = Concrete::Util::StringWriter.new
-    ser = ConcreteSupport::JsonSerializer.new(writer, :leadingSeparator => false)
-    ser.serialize(env.find(:class => ConcreteSupport::ConcreteMMM::Classifier))
+    ser = RGen::Serializer::JsonSerializer.new(writer, :leadingSeparator => false)
+    ser.serialize(env.find(:class => Concrete::Metamodel::ConcreteMMM::Classifier))
 
     @indexMetamodelAsJson = "var IndexMetamodel = "+writer.string+";"
   end
@@ -63,12 +63,36 @@ class DataProvider
     end
   end
 
+  def createModule(fileIdent)
+    return if fileIdent =~ /\.\./
+    newfile = Pathname.new(@workingSet.rootPath + "/" + fileIdent).cleanpath.to_s
+
+    unless File.exist?(newfile)
+      @logger.info("Creating module #{newfile}")
+      FileUtils.mkdir_p(File.dirname(newfile))
+
+      root = RGen::ECore::EPackage.new(:name => "Untitled")
+      if fileIdent =~ /\.ecore$/
+        File.open(newfile,"w") do |f|
+          ser = RGen::Serializer::XMI20Serializer.new(f)
+          ser.serialize(root)
+        end
+      else
+        generateMetamodel(root, newfile)
+      end
+    else
+      @logger.info("Using existing module #{newfile}")
+    end
+
+    @workingSet.addFile(newfile)
+  end
+
   def setJsonModel(fileIdent, data)
     return if (fileIdent == BuiltInIdent)
 
     env = RGen::Environment.new
 
-    inst = ConcreteSupport::JsonInstantiator.new(env, @mm, :separator => "/", :leadingSeparator => true)
+    inst = RGen::Instantiator::JsonInstantiator.new(env, @mm, :separator => "/", :leadingSeparator => true)
     unresolvedReferences = inst.instantiate(data)
 
     resolveReferencesToBuiltins(unresolvedReferences)
@@ -92,14 +116,6 @@ class DataProvider
     generateJsonIndex(outfile, root)
   end
 
-  def getJsonIndex(fileIdent)
-    if (fileIdent == BuiltInIdent)
-      builtInJsonIndex
-    else
-      cachedData(fileIdent, @jsonIndexCache)
-    end
-  end
-
   def getAllJsonIndex
   puts "load index"
     "[" + (@workingSet.fileIdentifiers + [BuiltInIdent]).collect do |ident|
@@ -108,6 +124,14 @@ class DataProvider
   end
 
   private
+
+  def getJsonIndex(fileIdent)
+    if (fileIdent == BuiltInIdent)
+      builtInJsonIndex
+    else
+      cachedData(fileIdent, @jsonIndexCache)
+    end
+  end
 
   def cachedData(fileIdent, cache)
     infile = @workingSet.getFile(fileIdent)
@@ -133,7 +157,7 @@ class DataProvider
   def generateJsonModel(file, root)
     @logger.info "caching json model..."
     writer = Concrete::Util::StringWriter.new
-    ser = ConcreteSupport::JsonSerializer.new(writer)
+    ser = RGen::Serializer::JsonSerializer.new(writer)
     ser.serialize(root)
     @jsonModelCache.storeData(file, writer.string)
   end
@@ -142,13 +166,17 @@ class DataProvider
     @logger.info "caching json index..."
     index = @indexBuilder.buildIndex(root)
     writer = Concrete::Util::StringWriter.new
-    ser = ConcreteSupport::JsonSerializer.new(writer)
+    ser = RGen::Serializer::JsonSerializer.new(writer)
     ser.serialize(index)
     @jsonIndexCache.storeData(file, writer.string)
   end
 
+  def self.removeLoadContainer
+    remove_const(:LoadContainer) if const_defined?(:LoadContainer)
+  end
+
   def loadRGenMetamodel(file)
-    self.class.remove_const(:LoadContainer) if self.class.const_defined?(:LoadContainer)
+    self.class.removeLoadContainer
     eval("module LoadContainer; end")  
     LoadContainer.module_eval(File.read(file))
     mmname = LoadContainer.constants.find{|c| LoadContainer.const_get(c).respond_to?(:ecore)}
@@ -165,7 +193,7 @@ class DataProvider
 
   def builtInJsonModel
     writer = Concrete::Util::StringWriter.new
-    ser = ConcreteSupport::JsonSerializer.new(writer)
+    ser = RGen::Serializer::JsonSerializer.new(writer)
     ser.serialize(builtInModel)
     writer.string
   end
@@ -173,7 +201,7 @@ class DataProvider
   def builtInJsonIndex
     index = builtInModel.collect{|e| @indexBuilder.buildIndex(e)}
     writer = Concrete::Util::StringWriter.new
-    ser = ConcreteSupport::JsonSerializer.new(writer)
+    ser = RGen::Serializer::JsonSerializer.new(writer)
     ser.serialize(index)
     writer.string
   end

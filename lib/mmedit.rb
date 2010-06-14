@@ -13,11 +13,7 @@ module MMEdit
     puts "mmedit #{MMEDIT_VERSION}"
     puts
 
-    if ARGV.size > 0
-      edit
-    else
-      puts "Usage: mmedit <metamodel file>"
-    end
+    edit
 
     exit(0)
   end
@@ -30,12 +26,16 @@ module MMEdit
 
     logger.info "Point your Firefox or Chrome to http://localhost:1234 ..."
     mm = RGen::ECore
-    indexBuilder = Concrete::IndexBuilder.new(mm, :ignoreReferences => proc {|r| false })
+    indexBuilder = Concrete::IndexBuilder.new(mm)
     indexBuilder.indexMetamodel
+
+    userHome = File.expand_path("~")
+    logger.info "User syntax load dir: #{userHome}/.mmedit"
+    syntaxDirs = [File.dirname(__FILE__)+"/../syntax", userHome+"/.mmedit"]
 
     dataProvider = MMEdit::DataProvider.new(workingSet, mm, indexBuilder, logger)
     config = Concrete::Config.new(File.expand_path("~/.mmedit_config"))
-    syntaxProvider = Concrete::ConcreteSyntaxProvider.new([File.dirname(__FILE__)+"/../syntax"], logger, config)
+    syntaxProvider = Concrete::ConcreteSyntaxProvider.new(syntaxDirs, logger, config)
     Concrete::Server.new(workingSet, dataProvider, syntaxProvider, File.dirname(__FILE__)+"/../html").start
   end
 
