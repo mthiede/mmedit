@@ -26,9 +26,7 @@ MMEdit can be installed as a Ruby gem:
 
 It requires Concrete, RGen and the little "andand" gem which should be installed automatically. Otherwise you can install them using:
 
-> gem install andand
-> gem install rgen
-> gem install concrete
+> gem install andand rgen concrete
 
 The Ruby part of Concrete should work with any Ruby version starting with Ruby 1.8.6. The Ruby installers can be downloaded from:
 

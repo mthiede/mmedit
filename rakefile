@@ -20,7 +20,7 @@ GemSpec = Gem::Specification.new do |s|
   gemfiles.include("html/**/*")
   gemfiles.include("lib/**/*")
   gemfiles.include("syntax/**/*")
-  gemfiles.include("mmedit.rb", "rakefile", "CHANGELOG", "README.rdoc")
+  gemfiles.include("mmedit.rb", "rakefile", "CHANGELOG", "MIT-LICENSE", "README.rdoc")
   s.files = gemfiles
   s.require_paths << "lib"
   s.executables = ["mmedit"]
